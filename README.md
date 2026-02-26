@@ -1,14 +1,51 @@
-情緒分類實作筆記：BERT 與 DistilBERT 的微調練習
-這個專案是我使用 Hugging Face 的 Transformers 庫來練習模型微調（Fine-tuning）的紀錄。我選用了 dair-ai/emotion 資料集，目標是讓模型能精準辨識文字背後隱藏的情緒類別。
+主題：基於 BERT 與 DistilBERT 架構之文字情緒分類之專案
+一、專題介紹
+這是來自於Kaggle的競賽
+研究背景與動機：
+在現今社群媒體盛行的時代，自動化辨識文字中的情緒特徵對於理解使用者反饋與社群趨勢至關重要。然文字情緒往往具有細微的語意差別，傳統機器學習方法難以精準捕捉上下文關聯。本研究旨在利用 Transformer 架構的預訓練模型，建構一個能自動辨識文字背後情緒類別的自然語言處理（NLP）系統。
 
-實作重點
-模型測試：同時跑了 BERT-base-uncased 和 DistilBERT-base-uncased 兩個模型來對比結果。
+任務定義：
+本專題任務屬於多類別分類（Multi-class Classification）問題。模型輸入為長度不一的文字序列，輸出則為六種情緒標籤之一：悲傷（sadness）、喜悅（joy）、愛（love）、憤怒（anger）、恐懼（fear）、驚訝（surprise）。
 
-優化訓練速度：為了不浪費 GPU 資源，我使用了動態填充（Dynamic Padding）。透過 DataCollatorWithPadding，系統會根據每個 batch 的最長句子來調整長度，這讓訓練效率提升了不少。
+二、資料說明與分析
+資料集結構：
+本研究採用 dair-ai/emotion 資料集，包含以下結構：
 
-完整的評估紀錄：除了準確率（Accuracy），還計算了 Precision、Recall 和 F1-score，確保模型在每一種情緒的判斷上都是均衡的。
+訓練集 (Train)：16,000 筆數據
 
-訓練設定：使用了 Adam 優化器，學習率設為 2e-5，並跑了 5個 Epochs。
+驗證集 (Validation)：2,000 筆數據
 
-實驗結果
-在測試集上的表現超乎預期，特別是 DistilBERT 在保持輕量的同時，準確率甚至比 BERT 還高一點點
+測試集 (Test)：2,000 筆數據
+
+特徵與標籤：
+資料包含 text（原始推文文字）與 label（情緒類別代號）兩個欄位。
+
+三、模型設計與實驗設定
+模型架構：
+本研究對比了兩種主流的 Transformer 模型：
+
+BERT-base-uncased：標準的預訓練 Transformer 模型。
+
+DistilBERT-base-uncased：BERT 的輕量化版本，旨在減少參數規模同時保持效能。
+
+關鍵技術 - 動態填充 (Dynamic Padding)：
+為了優化訓練效率，本研究採用 DataCollatorWithPadding 實作動態填充，讓每個 Batch 根據該組資料中最長句子進行補齊，而非固定長度，顯著降低了運算成本。
+
+超參數設定：
+
+學習率 (Learning Rate)：2e-5
+
+批次大小 (Batch Size)：16
+
+訓練週期 (Epochs)：3
+
+權重衰減 (Weight Decay)：0.01
+
+四、實驗結果與分析
+經過微調訓練後，模型在測試集上的表現如下表所示：
+
+分析：
+實驗結果顯示，輕量化的 DistilBERT 在此任務中表現略優於完整的 BERT 模型。這說明在短文本情緒分類任務中，較精簡的模型結構足以捕捉足夠的語意資訊，且因其參數較少，在微調時可能更容易在有限的 Epochs 下達到較佳的泛化效果。
+
+五、結論
+本專題成功建構了基於 Transformer 的情緒分類系統，並透過實驗證實動態填充技術能有效提升訓練效率。雖然目前已達到超過 92.8% 的準確率，未來仍可嘗試導入更先進的架構（如 DeBERTa-V3）或針對資料集中可能存在的類別不平衡情形進行 Loss 權重優化，以進一步提升少數類別的辨識效果。
